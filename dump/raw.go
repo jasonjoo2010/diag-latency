@@ -37,6 +37,7 @@ func dumpAction(ctx *cli.Context) error {
 	}
 
 	packetSource := gopacket.NewPacketSource(h, h.LinkType())
+	start := time.Now()
 NEXT_PKT:
 	for p := range packetSource.Packets() {
 		var from, to net.IP
@@ -54,7 +55,12 @@ NEXT_PKT:
 				continue NEXT_PKT
 			case layers.LayerTypeTCP:
 				tcp := l.(*layers.TCP)
-				fmt.Printf("%s:%d => %s:%d: len=%d\n", from.String(), tcp.SrcPort, to.String(), tcp.DstPort, len(tcp.Payload))
+				if len(tcp.Payload) == 0 {
+					continue NEXT_PKT
+				}
+
+				cost := p.Metadata().Timestamp.Sub(start)
+				fmt.Printf("%010d.%03d %s:%d => %s:%d: len=%d\n", cost.Milliseconds(), cost.Microseconds()%1000, from.String(), tcp.SrcPort, to.String(), tcp.DstPort, len(tcp.Payload))
 			}
 		}
 	}

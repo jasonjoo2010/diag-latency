@@ -24,9 +24,25 @@ func DumpCommand() *cli.Command {
 			},
 			{
 				Name: "lat",
-				Action: func(ctx *cli.Context) error {
-					return nil
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "dev",
+						Required: true,
+					},
+					&cli.IntSliceFlag{
+						Name: "port",
+					},
+					&cli.StringSliceFlag{
+						Name: "ip",
+					},
+					&cli.StringSliceFlag{
+						Name: "local-ip",
+					},
+					&cli.IntSliceFlag{
+						Name: "remote-port",
+					},
 				},
+				Action: latAction,
 			},
 		},
 	}
